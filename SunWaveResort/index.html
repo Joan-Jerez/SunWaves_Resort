@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <title>SunWaveResort</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <!-- Favicon -->
+    <link href="img/logo_Mesa de trabajo 1.png" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Iconos -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Animaciones -->
+    <link href="lib/animate/animate.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Bootstrap + Estilos -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <style>
+        /* ===== VARIABLES ===== */
+        :root {
+            --primary: #FEA116;
+            --dark: #0F172B;
+        }
+
+        /* ===== VISTAS (páginas simuladas) ===== */
+        .page-view { display: none; }
+        .page-view.active { display: block; }
+
+        /* ===== HABITACIONES ===== */
+        .room-item img { height: 220px; object-fit: cover; width: 100%; }
+
+        /* ===== MODAL DETALLE ===== */
+        .detail-img-main { width: 100%; height: 320px; object-fit: cover; border-radius: 12px; }
+        .detail-img-thumb { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; cursor: pointer; }
+        .amenities-list { columns: 2; list-style: none; padding: 0; }
+        .amenities-list li::before { content: "✓ "; color: var(--primary); font-weight: bold; }
+
+        /* ===== CONFIRMACIÓN ===== */
+        .confirm-code {
+            font-size: 2rem; font-weight: 800;
+            color: var(--dark);
+            background: #fff8ec;
+            border: 2px dashed var(--primary);
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            display: inline-block;
+            letter-spacing: 0.1em;
+        }
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .summary-item { border: 1px solid #e4e9f2; border-radius: 10px; padding: 0.75rem 1rem; background: #fbfcff; }
+        .summary-item strong { display: block; font-size: 0.82rem; color: #6f7788; font-weight: 600; }
+        .summary-item span { font-size: 1rem; font-weight: 700; color: #0F172B; }
+
+        /* ===== ADMIN ===== */
+        .admin-sidebar a {
+            display: block; padding: 0.7rem 1rem; border-radius: 8px;
+            font-weight: 600; color: #0F172B; text-decoration: none;
+            margin-bottom: 4px; transition: 0.2s;
+        }
+        .admin-sidebar a:hover, .admin-sidebar a.active {
+            background: var(--dark); color: #fff;
+        }
+        .stat-box { text-align: center; background: #fff; border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,.07); }
+        .stat-box h2 { font-size: 2.2rem; font-weight: 800; color: var(--dark); margin: 0; }
+        .stat-box small { color: #6f7788; }
+        .badge-status {
+            padding: 0.35rem 0.75rem; border-radius: 999px;
+            font-size: 0.82rem; font-weight: 800;
+        }
+        .badge-pending { background: #fff8e8; color: #b26b00; }
+        .badge-approved { background: #e8fff2; color: #0d7a42; }
+        .badge-rejected { background: #fff2f2; color: #b42318; }
+        .badge-active { background: #e8fff2; color: #0d7a42; }
+        .badge-inactive { background: #fff2f2; color: #b42318; }
+        .badge-block { background: #fff2f2; color: #b42318; }
+        .badge-open { background: #e8fff2; color: #0d7a42; }
+        .status-query-card {
+            max-width: 760px; margin: 0 auto;
+            background: linear-gradient(180deg, #ffffff, #fffaf1);
+            border: 1px solid #f2e5c4;
+            border-radius: 18px;
+        }
+        .status-query-result {
+            border: 1px solid #e4e9f2;
+            border-radius: 14px;
+            background: #fbfcff;
+        }
+
+        /* ===== ADMIN NAVBAR ===== */
+        #adminBar { background: var(--dark); padding: 0.6rem 0; display: none; }
+        #adminBar .container { display: flex; justify-content: space-between; align-items: center; }
+        #adminBar span { color: rgba(255,255,255,.7); font-size: 0.9rem; }
+        #adminBar button { background: none; border: 1px solid rgba(255,255,255,.4); color: #fff; padding: 0.3rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+
+        /* ===== PRINT ===== */
+        @media print {
+            body * { visibility: hidden !important; }
+            #view-confirmation, #view-confirmation * { visibility: visible !important; }
+            #view-confirmation {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .no-print { display: none !important; }
+        }
+
+        /* ===== WELCOME BANNER ===== */
+        #welcomeBanner {
+            background: linear-gradient(135deg, #071430, #0d1c43);
+            color: #fff; padding: 1rem 0; display: none;
+        }
+        #welcomeBanner .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+        #welcomeBanner p { margin: 0; font-size: 1rem; }
+        #adminAccessBtn {
+            background: var(--primary); border: none; color: #fff;
+            padding: 0.3rem 0.9rem; border-radius: 6px; font-size: 0.8rem;
+            cursor: pointer; font-weight: 600;
+        }
+
+        /* El efecto de footer superpuesto solo aplica en Home */
+        body.home-view .footer {
+            margin-top: -110px;
+            padding-top: 180px;
+        }
+        body:not(.home-view) .footer {
+            margin-top: 0;
+            padding-top: 70px;
+        }
+
+        /* nav active */
+        .nav-link.nav-active { color: var(--primary) !important; }
+    </style>
+</head>
+
+<body class="home-view">
+<div class="container-xxl bg-white p-0">
+
+    <!-- Spinner -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width:3rem;height:3rem;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Welcome Banner (aparece tras login) -->
+    <div id="welcomeBanner">
+        <div class="container">
+            <p>👋 ¡Bienvenido, <span id="welcomeName"></span>!</p>
+            <div class="d-flex gap-2 align-items-center">
+                <button id="adminAccessBtn" onclick="enterAdmin()" style="display:none;">Panel Admin</button>
+                <button onclick="logout()" style="background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;padding:0.3rem 0.9rem;border-radius:6px;font-size:0.8rem;cursor:pointer;">Cerrar sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== NAVBAR ==================== -->
+    <div class="container-fluid bg-dark px-0">
+        <div class="row gx-0">
+            <div class="col-lg-3 bg-dark d-none d-lg-block">
+                <a href="#" onclick="showPage('home')" class="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center">
+                    <h1 class="m-0 text-primary text-uppercase">SunWave</h1>
+                </a>
+            </div>
+            <div class="col-lg-9">
+                <div class="row gx-0 bg-white d-none d-lg-flex">
+                    <div class="col-lg-7 px-5 text-start">
+                        <div class="h-100 d-inline-flex align-items-center py-2 me-4">
+                            <i class="fa fa-envelope text-primary me-2"></i>
+                            <p class="mb-0">SunWaveResort@Hotel.com</p>
+                        </div>
+                        <div class="h-100 d-inline-flex align-items-center py-2">
+                            <i class="fa fa-phone-alt text-primary me-2"></i>
+                            <p class="mb-0">+1 809-895-9559</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 px-5 text-end">
+                        <div class="d-inline-flex align-items-center py-2">
+                            <a class="me-3" href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a class="me-3" href="#"><i class="fab fa-twitter"></i></a>
+                            <a class="me-3" href="#"><i class="fab fa-linkedin-in"></i></a>
+                            <a class="me-3" href="#"><i class="fab fa-instagram"></i></a>
+                            <a href="#"><i class="fab fa-youtube"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <nav class="navbar navbar-expand-lg bg-dark navbar-dark p-3 p-lg-0">
+                    <a href="#" onclick="showPage('home')" class="navbar-brand d-block d-lg-none">
+                        <h1 class="m-0 text-primary text-uppercase">SunWave</h1>
+                    </a>
+                    <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+                        <div class="navbar-nav mr-auto py-0">
+                            <a href="#" class="nav-item nav-link" onclick="showPage('home')">Home</a>
+                            <a href="#" class="nav-item nav-link" onclick="showPage('home'); scrollToSection('about')">About</a>
+                            <a href="#" class="nav-item nav-link" onclick="showPage('home'); scrollToSection('services')">Services</a>
+                            <a href="#" class="nav-item nav-link" onclick="showPage('rooms')">Rooms</a>
+                            <a href="#" class="nav-item nav-link" onclick="showPage('lookup')">Consultar Reserva</a>
+                            <a href="#" class="nav-item nav-link" onclick="showPage('home'); scrollToSection('contact')">Contact</a>
+                            <a href="#" class="nav-item nav-link" id="navLoginLink" onclick="showPage('login')">Admin</a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <!-- Navbar End -->
+
+
+    <!-- ==================== HOME PAGE ==================== -->
+    <div id="view-home" class="page-view active">
+
+        <!-- Carousel -->
+        <div class="container-fluid p-0 mb-5">
+            <div id="header-carousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img class="w-100" src="img/carousel-1.jpg" alt="Carousel 1" style="height:600px;object-fit:cover;">
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                            <div class="p-3" style="max-width:700px;">
+                                <h6 class="section-title text-white text-uppercase mb-3 animated slideInDown">Estadías Lujosas</h6>
+                                <h1 class="display-3 text-white mb-4 animated slideInDown">Descubre tu Habitación Exclusiva</h1>
+                                <a href="#" onclick="showPage('rooms')" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Ver Habitaciones</a>
+                                <a href="#" onclick="scrollToSection('booking')" class="btn btn-light py-md-3 px-md-5 animated slideInRight">Reserva</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img class="w-100" src="img/carousel-2.jpg" alt="Carousel 2" style="height:600px;object-fit:cover;">
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                            <div class="p-3" style="max-width:700px;">
+                                <h6 class="section-title text-white text-uppercase mb-3 animated slideInDown">Estadías Lujosas</h6>
+                                <h1 class="display-3 text-white mb-4 animated slideInDown">Descubre tu Habitación Exclusiva</h1>
+                                <a href="#" onclick="showPage('rooms')" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Otros Cuartos</a>
+                                <a href="#" onclick="scrollToSection('booking')" class="btn btn-light py-md-3 px-md-5 animated slideInRight">Reserva</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img class="w-100" src="img/carousel-3.jpg" alt="Carousel 3" style="height:600px;object-fit:cover;">
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                            <div class="p-3" style="max-width:700px;">
+                                <h6 class="section-title text-white text-uppercase mb-3 animated slideInDown">Estadías Lujosas</h6>
+                                <h1 class="display-3 text-white mb-4 animated slideInDown">Descubre tu Habitación Exclusiva</h1>
+                                <a href="#" onclick="showPage('rooms')" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Otros Cuartos</a>
+                                <a href="#" onclick="scrollToSection('booking')" class="btn btn-light py-md-3 px-md-5 animated slideInRight">Reserva</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#header-carousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#header-carousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Booking Form -->
+        <div class="container-fluid booking pb-5 wow fadeIn" id="booking" data-wow-delay="0.1s">
+            <div class="container">
+                <div class="bg-white shadow rounded p-4">
+                    <h3 class="text-center text-primary mb-4">Consulta tu Estadía</h3>
+                    <div class="row g-3 justify-content-center">
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium">Fecha de entrada</label>
+                            <input type="date" class="form-control" id="homeCheckIn">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium">Fecha de salida</label>
+                            <input type="date" class="form-control" id="homeCheckOut">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium">Adultos</label>
+                            <input type="number" class="form-control" id="homeAdults" min="1" value="2">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium">Niños</label>
+                            <input type="number" class="form-control" id="homeChildren" min="0" value="0">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium">Habitaciones</label>
+                            <input type="number" class="form-control" id="homeRooms" min="1" value="1">
+                        </div>
+                        <div class="col-12 text-center mt-3">
+                            <button class="btn btn-primary px-5 py-2" onclick="searchRoomsFromHome()">Buscar Disponibilidad</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About -->
+        <div class="container-xxl py-5" id="about">
+            <div class="container">
+                <div class="row g-5 align-items-center">
+                    <div class="col-lg-6 wow fadeInUp">
+                        <div class="row g-3">
+                            <div class="col-6 text-end">
+                                <img class="img-fluid rounded w-75" src="img/about-1.jpg" style="margin-top:25%;" alt="">
+                            </div>
+                            <div class="col-6 text-start">
+                                <img class="img-fluid rounded w-100" src="img/about-2.jpg" alt="">
+                            </div>
+                            <div class="col-6 text-end">
+                                <img class="img-fluid rounded w-50" src="img/about-3.jpg" alt="">
+                            </div>
+                            <div class="col-6 text-start">
+                                <img class="img-fluid rounded w-75" src="img/about-4.jpg" alt="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 wow fadeInUp">
+                        <h6 class="section-title text-start text-primary text-uppercase">Sobre Nosotros</h6>
+                        <h1 class="mb-4">Bienvenidos al <span class="text-primary text-uppercase">SunWave Resort</span></h1>
+                        <p>Sunwave Resort es un destino de lujo ubicado en Punta Cana, República Dominicana. Ofrecemos habitaciones de primera clase, servicios exclusivos y una experiencia inigualable frente al mar.</p>
+                        <p class="mb-4">Nuestro compromiso es brindar comodidad, elegancia y un servicio personalizado para hacer de tu estadía un momento memorable.</p>
+                        <div class="row g-4 mb-4">
+                            <div class="col-sm-4">
+                                <div class="border rounded p-1">
+                                    <div class="border rounded text-center p-4">
+                                        <i class="fa fa-hotel fa-2x text-primary mb-2"></i>
+                                        <h2 class="mb-1">50</h2><p class="mb-0">Habitaciones</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="border rounded p-1">
+                                    <div class="border rounded text-center p-4">
+                                        <i class="fa fa-users fa-2x text-primary mb-2"></i>
+                                        <h2 class="mb-1">1000</h2><p class="mb-0">Clientes</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="border rounded p-1">
+                                    <div class="border rounded text-center p-4">
+                                        <i class="fa fa-star fa-2x text-primary mb-2"></i>
+                                        <h2 class="mb-1">10</h2><p class="mb-0">Años</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a class="btn btn-primary py-3 px-5" href="#" onclick="showPage('rooms')">Ver Habitaciones</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services -->
+        <div class="container-xxl py-5" id="services">
+            <div class="container">
+                <div class="text-center wow fadeInUp">
+                    <h6 class="section-title text-center text-primary text-uppercase">Nuestros Servicios</h6>
+                    <h1 class="mb-5">Explore Nuestros <span class="text-primary text-uppercase">Servicios</span></h1>
+                </div>
+                <div class="row g-4">
+                    <div class="col-lg-4 col-md-6 wow fadeInUp">
+                        <div class="service-item rounded text-center p-4">
+                            <i class="fa fa-hotel fa-3x text-primary mb-3"></i>
+                            <h5>Habitaciones de Lujo</h5>
+                            <p>Disfruta de habitaciones amuebladas con los más altos estándares de comodidad.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 wow fadeInUp">
+                        <div class="service-item rounded text-center p-4">
+                            <i class="fa fa-swimmer fa-3x text-primary mb-3"></i>
+                            <h5>Piscina & Spa</h5>
+                            <p>Relájate en nuestra piscina infinita con vista al mar y servicios de spa.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 wow fadeInUp">
+                        <div class="service-item rounded text-center p-4">
+                            <i class="fa fa-utensils fa-3x text-primary mb-3"></i>
+                            <h5>Restaurante Gourmet</h5>
+                            <p>Saborea la mejor gastronomía caribeña e internacional.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 wow fadeInUp">
+                        <div class="service-item rounded text-center p-4">
+                            <i class="fa fa-dumbbell fa-3x text-primary mb-3"></i>
+                            <h5>GYM & Yoga</h5>
+                            <p>Gimnasio completamente equipado y clases de yoga frente al mar.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 wow fadeInUp">
+                        <div class="service-item rounded text-center p-4">
+                            <i class="fa fa-glass-cheers fa-3x text-primary mb-3"></i>
+                            <h5>Eventos & Fiestas</h5>
+                            <p>Espacios diseñados para celebraciones y eventos inolvidables.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 wow fadeInUp">
+                        <div class="service-item rounded text-center p-4">
+                            <i class="fa fa-futbol fa-3x text-primary mb-3"></i>
+                            <h5>Deportes & Gaming</h5>
+                            <p>Actividades acuáticas, canchas y área de entretenimiento familiar.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rooms preview -->
+        <div class="container-xxl py-5">
+            <div class="container">
+                <div class="text-center wow fadeInUp">
+                    <h6 class="section-title text-center text-primary text-uppercase">Habitaciones</h6>
+                    <h1 class="mb-5">Explore los <span class="text-primary text-uppercase">Cuartos</span></h1>
+                </div>
+                <div class="row g-4" id="homeRoomsGrid"></div>
+                <div class="text-center mt-4">
+                    <a href="#" class="btn btn-primary py-3 px-5" onclick="showPage('rooms')">Ver Todas las Habitaciones</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video -->
+        <div class="container-xxl py-5 px-0 wow zoomIn">
+            <div class="row g-0">
+                <div class="col-md-6 bg-dark d-flex align-items-center">
+                    <div class="p-5">
+                        <h6 class="section-title text-start text-primary text-uppercase mb-3">Sunwave Experience</h6>
+                        <h1 class="text-white mb-4">Relájate en un resort de ensueño</h1>
+                        <a href="#" onclick="showPage('rooms')" class="btn btn-primary py-md-3 px-md-5 me-3">Ver Habitaciones</a>
+                        <a href="#" onclick="scrollToSection('booking')" class="btn btn-light py-md-3 px-md-5">Reservar</a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="video">
+                        <button type="button" class="btn-play" data-bs-toggle="modal"
+                            data-src="https://www.youtube.com/embed/DWRcNpR6Kdc" data-bs-target="#videoModal">
+                            <span></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Modal -->
+        <div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content rounded-0">
+                    <div class="modal-header">
+                        <h5 class="modal-title">SunWave Resort</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <div class="ratio ratio-16x9">
+                            <iframe src="" id="video" allowfullscreen allow="autoplay"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end view-home -->
+
+
+    <!-- ==================== ROOMS PAGE ==================== -->
+    <div id="view-rooms" class="page-view">
+
+        <!-- Page Header -->
+        <div class="container-fluid page-header mb-5 p-0" style="background-image:url('img/carousel-2.jpg');">
+            <div class="container-fluid page-header-inner py-5">
+                <div class="container text-center pb-5">
+                    <h1 class="display-3 text-white mb-3">Habitaciones</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb justify-content-center text-uppercase">
+                            <li class="breadcrumb-item"><a href="#" onclick="showPage('home')">Home</a></li>
+                            <li class="breadcrumb-item text-white active">Habitaciones</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="container-fluid booking pb-5 wow fadeIn">
+            <div class="container">
+                <div class="bg-white shadow rounded p-4">
+                    <h3 class="text-center text-primary mb-4">Buscar Disponibilidad</h3>
+                    <div class="row g-3 justify-content-center">
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium">Entrada</label>
+                            <input type="date" class="form-control" id="rCheckIn">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium">Salida</label>
+                            <input type="date" class="form-control" id="rCheckOut">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium">Adultos</label>
+                            <input type="number" class="form-control" id="rAdults" min="1" value="2">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium">Niños</label>
+                            <input type="number" class="form-control" id="rChildren" min="0" value="0">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-medium">Habitaciones</label>
+                            <input type="number" class="form-control" id="rRooms" min="1" value="1">
+                        </div>
+                        <div class="col-12 text-center mt-2">
+                            <button class="btn btn-primary px-5 py-2" onclick="filterRooms()">Buscar</button>
+                        </div>
+                    </div>
+                    <div id="searchError" class="alert alert-danger mt-3 d-none"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rooms Grid -->
+        <div class="container-xxl py-3 pb-5">
+            <div class="container">
+                <p id="roomsResultMsg" class="text-muted mb-4"></p>
+                <div class="row g-4" id="roomsGrid"></div>
+                <div id="noRoomsMsg" class="text-center py-5 d-none">
+                    <i class="fa fa-bed fa-3x text-primary mb-3"></i>
+                    <h4>No se encontraron habitaciones disponibles</h4>
+                    <p class="text-muted">Intenta con otras fechas o cantidad de huéspedes.</p>
+                </div>
+            </div>
+        </div>
+    </div><!-- end view-rooms -->
+
+
+    <!-- ==================== ROOM DETAIL PAGE ==================== -->
+    <div id="view-detail" class="page-view">
+        <div class="container-xxl py-5">
+            <div class="container">
+                <div class="row g-5">
+                    <!-- Left: Images + Amenities -->
+                    <div class="col-lg-6">
+                        <img id="detailMainImg" class="detail-img-main mb-3" src="" alt="">
+                        <div class="row g-2 mb-4" id="detailGallery"></div>
+                        <div class="bg-white shadow rounded p-4">
+                            <h5 class="text-primary text-uppercase mb-3">Comodidades</h5>
+                            <ul class="amenities-list" id="detailAmenities"></ul>
+                        </div>
+                    </div>
+                    <!-- Right: Info + Form -->
+                    <div class="col-lg-6">
+                        <h6 class="section-title text-start text-primary text-uppercase">Detalle de Habitación</h6>
+                        <h1 id="detailName" class="mb-2"></h1>
+                        <div id="detailMeta" class="d-flex flex-wrap gap-2 mb-3"></div>
+                        <p id="detailDesc" class="text-body mb-4"></p>
+
+                        <div class="bg-white shadow rounded p-4">
+                            <h5 class="text-primary text-uppercase mb-4">Reservar Habitación</h5>
+                            <div class="row g-3">
+                                <input type="hidden" id="resRoomId">
+                                <div class="col-12">
+                                    <label class="form-label fw-medium">Nombre completo</label>
+                                    <input type="text" class="form-control" id="resName" placeholder="Tu nombre completo">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Correo electrónico</label>
+                                    <input type="email" class="form-control" id="resEmail" placeholder="correo@ejemplo.com">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Teléfono</label>
+                                    <input type="text" class="form-control" id="resPhone" placeholder="+1 809-000-0000">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Fecha de entrada</label>
+                                    <input type="date" class="form-control" id="resCheckIn" oninput="calcEstimate()">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Fecha de salida</label>
+                                    <input type="date" class="form-control" id="resCheckOut" oninput="calcEstimate()">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-medium">Adultos</label>
+                                    <input type="number" class="form-control" id="resAdults" min="1" value="2">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-medium">Niños</label>
+                                    <input type="number" class="form-control" id="resChildren" min="0" value="0">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-medium">Habitaciones</label>
+                                    <input type="number" class="form-control" id="resRooms" min="1" value="1" oninput="calcEstimate()">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-medium">Notas adicionales</label>
+                                    <textarea class="form-control" id="resNotes" rows="3" placeholder="Preferencias o solicitudes especiales"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Estimate -->
+                            <div class="d-flex justify-content-between align-items-center border rounded p-3 mt-3" style="background:#fffbf2;">
+                                <div>
+                                    <small class="text-muted d-block">Costo estimado</small>
+                                    <strong id="estimateTotal" class="text-primary">Completa fechas para calcular</strong>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted d-block">Noches</small>
+                                    <strong id="estimateNights">--</strong>
+                                </div>
+                            </div>
+
+                            <div id="resError" class="alert alert-danger mt-3 d-none"></div>
+
+                            <div class="d-flex gap-2 mt-3">
+                                <button class="btn btn-primary w-100 py-3" onclick="confirmReservation()">Confirmar Reserva</button>
+                                <button class="btn btn-outline-secondary py-3 px-4" onclick="showPage('rooms')">Volver</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- end view-detail -->
+
+
+    <!-- ==================== CONFIRMATION PAGE ==================== -->
+    <div id="view-confirmation" class="page-view">
+        <div class="container-xxl py-5">
+            <div class="container" style="max-width:680px;">
+                <div class="bg-white shadow rounded p-5 text-center">
+                    <span class="badge bg-success fs-6 py-2 px-4 mb-3">✓ Reserva Registrada</span>
+                    <h2 class="mb-2">¡Gracias por tu reserva!</h2>
+                    <p class="text-muted mb-4">Tu solicitud fue registrada. Guarda el código de confirmación.</p>
+                    <div class="confirm-code mb-4" id="confCode"></div>
+                    <div class="summary-grid text-start mb-4" id="confSummary"></div>
+                    <div class="d-flex gap-3 justify-content-center no-print">
+                        <button class="btn btn-primary py-3 px-5" onclick="printConfirmation()">
+                            <i class="fa fa-print me-2"></i>Imprimir factura
+                        </button>
+                        <button class="btn btn-outline-secondary py-3 px-4" onclick="showPage('home')">
+                            <i class="fa fa-home me-2"></i>Volver al inicio
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- end view-confirmation -->
+
+
+    <!-- ==================== RESERVATION LOOKUP PAGE ==================== -->
+    <div id="view-lookup" class="page-view">
+        <div class="container-xxl py-5">
+            <div class="container">
+                <div class="status-query-card shadow p-4 p-lg-5">
+                    <div class="text-center mb-4">
+                        <h6 class="section-title text-center text-primary text-uppercase">Consulta de Reserva</h6>
+                        <h2 class="mb-2">Revisa el estado de tu solicitud</h2>
+                        <p class="text-muted mb-0">Ingresa tu código único de reserva para verificar si está pendiente, aprobada o rechazada.</p>
+                    </div>
+                    <div class="row g-3 align-items-end">
+                        <div class="col-lg-9">
+                            <label class="form-label fw-medium">Código de reserva</label>
+                            <input type="text" class="form-control form-control-lg" id="lookupCode" placeholder="Ejemplo: SW-AB12CD" onkeypress="if(event.key==='Enter') lookupReservation()">
+                        </div>
+                        <div class="col-lg-3 d-grid">
+                            <button class="btn btn-primary btn-lg" onclick="lookupReservation()">Consultar</button>
+                        </div>
+                    </div>
+                    <div id="lookupError" class="alert alert-danger mt-4 d-none mb-0"></div>
+                    <div id="lookupResult" class="status-query-result mt-4 p-4 d-none"></div>
+                </div>
+            </div>
+        </div>
+    </div><!-- end view-lookup -->
+
+
+    <!-- ==================== LOGIN PAGE ==================== -->
+    <div id="view-login" class="page-view">
+        <div class="container-xxl py-5">
+            <div class="container d-flex justify-content-center align-items-center" style="min-height:60vh;">
+                <div class="bg-white shadow rounded p-5" style="width:100%;max-width:440px;">
+                    <div class="text-center mb-4">
+                        <h4 class="text-primary text-uppercase fw-bold">SunWave</h4>
+                        <h5 class="mb-1">Acceso Administrador</h5>
+                        <p class="text-muted small">Ingresa tus credenciales para continuar</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Correo electrónico</label>
+                        <input type="email" class="form-control" id="loginEmail" placeholder="admin@sunwave.com">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Contraseña</label>
+                        <input type="password" class="form-control" id="loginPass" placeholder="••••••••" onkeypress="if(event.key==='Enter') doLogin()">
+                    </div>
+                    <div id="loginError" class="alert alert-danger d-none mb-3">Credenciales incorrectas.</div>
+                    <button class="btn btn-primary w-100 py-3" onclick="doLogin()">
+                        <i class="fa fa-sign-in-alt me-2"></i>Iniciar sesión
+                    </button>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">Demo: admin@sunwave.com / admin123</small>
+                    </div>
+                    <div class="text-center mt-2">
+                        <a href="#" onclick="showPage('home')" class="text-muted small">
+                            <i class="fa fa-arrow-left me-1"></i>Volver al sitio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- end view-login -->
+
+
+    <!-- ==================== ADMIN DASHBOARD ==================== -->
+    <div id="view-admin" class="page-view">
+        <!-- Admin Header -->
+        <div class="container-fluid bg-dark py-4">
+            <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <p class="text-primary text-uppercase mb-1" style="font-size:0.82rem;letter-spacing:.08em;">ADMINISTRADOR ——</p>
+                    <h3 class="text-white mb-0 fw-bold" id="adminPageTitle">Panel administrativo</h3>
+                </div>
+                <button class="btn btn-outline-light" onclick="logout()">Cerrar sesión</button>
+            </div>
+        </div>
+
+        <div class="container-xxl py-4 pb-5">
+            <div class="container">
+                <div class="row g-4">
+                    <!-- Sidebar -->
+                    <div class="col-lg-3">
+                        <div class="bg-white shadow rounded p-3 admin-sidebar">
+                            <a href="#" id="sidebarDashboard" onclick="adminTab('dashboard')" class="active">Dashboard</a>
+                            <a href="#" id="sidebarRooms" onclick="adminTab('rooms')">Habitaciones</a>
+                            <a href="#" id="sidebarReservations" onclick="adminTab('reservations')">Reservas</a>
+                            <a href="#" id="sidebarAvailability" onclick="adminTab('availability')">Disponibilidad</a>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="col-lg-9">
+
+                        <!-- Dashboard Tab -->
+                        <div id="tab-dashboard">
+                            <div class="row g-3 mb-4" id="statsGrid"></div>
+                            <div class="bg-white shadow rounded p-4">
+                                <h5 class="fw-bold mb-3">Accesos rápidos</h5>
+                                <div class="d-flex flex-wrap gap-3">
+                                    <button class="btn btn-primary py-2 px-4" onclick="adminTab('rooms')">Gestionar habitaciones</button>
+                                    <button class="btn btn-outline-primary py-2 px-4" onclick="adminTab('reservations')">Gestionar reservas</button>
+                                    <button class="btn btn-dark py-2 px-4" onclick="adminTab('availability')">Administrar disponibilidad</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rooms Tab -->
+                        <div id="tab-rooms" class="d-none">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0">Gestionar Habitaciones</h5>
+                                <button class="btn btn-primary" onclick="openRoomForm(null)">+ Nueva habitación</button>
+                            </div>
+                            <div class="bg-white shadow rounded overflow-hidden">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-dark">
+                                            <tr><th>Habitación</th><th>Precio</th><th>Capacidad</th><th>Estado</th><th>Acciones</th></tr>
+                                        </thead>
+                                        <tbody id="adminRoomsTable"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reservations Tab -->
+                        <div id="tab-reservations" class="d-none">
+                            <h5 class="fw-bold mb-3">Gestionar Reservas</h5>
+                            <div class="bg-white shadow rounded overflow-hidden">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-dark">
+                                            <tr><th>C??digo</th><th>Cliente</th><th>Habitaci??n</th><th>Fechas</th><th>Total</th><th>Estado</th><th>Motivo rechazo</th><th>Acci??n</th></tr>
+                                        </thead>
+                                        <tbody id="adminReservationsTable"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Availability Tab -->
+                        <div id="tab-availability" class="d-none">
+                            <h5 class="fw-bold mb-3">Administrar Disponibilidad</h5>
+                            <div class="bg-white shadow rounded p-4 mb-4">
+                                <h6 class="fw-bold mb-3">Nuevo rango</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium">Habitación</label>
+                                        <select class="form-select" id="avRoomId">
+                                            <option value="">Selecciona</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium">Tipo</label>
+                                        <select class="form-select" id="avType">
+                                            <option value="block">Bloquear</option>
+                                            <option value="open">Apertura</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium">Fecha inicial</label>
+                                        <input type="date" class="form-control" id="avStart">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium">Fecha final</label>
+                                        <input type="date" class="form-control" id="avEnd">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-medium">Motivo</label>
+                                        <input type="text" class="form-control" id="avReason" placeholder="Ej. mantenimiento, cierre temporal">
+                                    </div>
+                                    <div class="col-12">
+                                        <button class="btn btn-primary w-100 py-2" onclick="addAvailability()">Guardar rango</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white shadow rounded overflow-hidden">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-dark">
+                                            <tr><th>Habitación</th><th>Rango</th><th>Tipo</th><th>Motivo</th><th>Acción</th></tr>
+                                        </thead>
+                                        <tbody id="adminAvailabilityTable"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- col-lg-9 -->
+                </div>
+            </div>
+        </div>
+    </div><!-- end view-admin -->
+
+
+    <!-- ==================== ROOM FORM MODAL ==================== -->
+    <div class="modal fade" id="roomFormModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="roomFormTitle">Nueva Habitación</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="rfId">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">Nombre</label>
+                            <input type="text" class="form-control" id="rfName" placeholder="Ej: Junior Suite">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">Precio (USD/noche)</label>
+                            <input type="number" class="form-control" id="rfPrice" min="1" placeholder="100">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-medium">Descripción</label>
+                            <textarea class="form-control" id="rfDesc" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-medium">Adultos (cap.)</label>
+                            <input type="number" class="form-control" id="rfAdults" min="1" value="2">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-medium">Niños (cap.)</label>
+                            <input type="number" class="form-control" id="rfChildren" min="0" value="1">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-medium">Camas</label>
+                            <input type="number" class="form-control" id="rfBeds" min="1" value="2">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-medium">Baños</label>
+                            <input type="number" class="form-control" id="rfBaths" min="1" value="1">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-medium">Imagen (URL)</label>
+                            <input type="url" class="form-control" id="rfImage" placeholder="https://...">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-medium">Comodidades <small class="text-muted">(separadas por coma)</small></label>
+                            <input type="text" class="form-control" id="rfAmenities" placeholder="WiFi, Aire acondicionado, TV...">
+                        </div>
+                        <div class="col-12 d-flex gap-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="rfFeatured">
+                                <label class="form-check-label fw-medium" for="rfFeatured">Destacada</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="rfActive" checked>
+                                <label class="form-check-label fw-medium" for="rfActive">Activa</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-primary px-4" onclick="saveRoom()"><i class="fa fa-save me-2"></i>Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== FOOTER ==================== -->
+    <div class="container-fluid bg-dark text-light footer wow fadeIn" id="contact" data-wow-delay="0.1s">
+        <div class="container pb-5">
+            <div class="row g-5">
+                <div class="col-md-6 col-lg-4">
+                    <div class="bg-primary rounded p-4">
+                        <a href="#" onclick="showPage('home')"><h1 class="text-white text-uppercase mb-3">SunWave</h1></a>
+                        <p class="text-white mb-0">República Dominicana, Punta Cana</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <h6 class="section-title text-start text-primary text-uppercase mb-4">Contacto</h6>
+                    <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>República Dominicana, Punta Cana</p>
+                    <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+1 829-895-9559</p>
+                    <p class="mb-2"><i class="fa fa-envelope me-3"></i>SunWaveResort@Hotel.com</p>
+                    <div class="d-flex pt-2">
+                        <a class="btn btn-outline-light btn-social" href="#"><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-outline-light btn-social" href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-outline-light btn-social" href="#"><i class="fab fa-youtube"></i></a>
+                        <a class="btn btn-outline-light btn-social" href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-5 col-md-12">
+                    <div class="row gy-5 g-4">
+                        <div class="col-md-6">
+                            <h6 class="section-title text-start text-primary text-uppercase mb-4">Company</h6>
+                            <a class="btn btn-link" href="#" onclick="showPage('home')">About Us</a>
+                            <a class="btn btn-link" href="#" onclick="showPage('rooms')">Rooms</a>
+                            <a class="btn btn-link" href="#" onclick="scrollToSection('contact')">Contact Us</a>
+                            <a class="btn btn-link" href="#">Privacy Policy</a>
+                            <a class="btn btn-link" href="#">Support</a>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="section-title text-start text-primary text-uppercase mb-4">Servicios</h6>
+                            <a class="btn btn-link" href="#">Food & Restaurant</a>
+                            <a class="btn btn-link" href="#">Spa & Fitness</a>
+                            <a class="btn btn-link" href="#">Sports & Gaming</a>
+                            <a class="btn btn-link" href="#">Event & Party</a>
+                            <a class="btn btn-link" href="#">GYM & Yoga</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="copyright">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy; <span id="footerYear"></span> <a class="border-bottom" href="#">SunWave Resort</a>. All Right Reserved.
+                        Designed By <a class="border-bottom" href="#">SunWaveResort</a>
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <div class="footer-menu">
+                            <a href="#" onclick="showPage('home')">Home</a>
+                            <a href="#">Cookies</a>
+                            <a href="#">Help</a>
+                            <a href="#">FAQs</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    </div>
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+</div><!-- container-xxl -->
+
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="lib/wow/wow.min.js"></script>
+<script src="lib/easing/easing.min.js"></script>
+<script src="lib/waypoints/waypoints.min.js"></script>
+<script src="lib/counterup/counterup.min.js"></script>
+<script src="lib/owlcarousel/owl.carousel.min.js"></script>
+<script src="js/main.js"></script>
+
+<script>
+// ============================================================
+// DATA STORE (localStorage para persistencia)
+// ============================================================
+function getData(key, def) {
+    try { return JSON.parse(localStorage.getItem('sw_' + key)) || def; }
+    catch(e) { return def; }
+}
+function setData(key, val) {
+    localStorage.setItem('sw_' + key, JSON.stringify(val));
+}
+
+// Habitaciones por defecto
+var defaultRooms = [
+    { id:'R001', name:'Junior Suite', slug:'junior-suite', price:125, description:'Suite cómoda con vistas al jardín, ideal para parejas o viajeros de negocios.', capacityAdults:2, capacityChildren:1, beds:2, bathrooms:1, active:true, featured:true, image:'img/room-1.jpg', gallery:['img/room-1.jpg','img/about-1.jpg'], amenities:['Aire acondicionado','WiFi','TV','Minibar'] },
+    { id:'R002', name:'Executive Suite', slug:'executive-suite', price:190, description:'Suite moderna con mayor espacio, área de descanso y comodidades premium para parejas o familias pequeñas.', capacityAdults:3, capacityChildren:2, beds:2, bathrooms:2, active:true, featured:true, image:'img/room-2.jpg', gallery:['img/room-2.jpg','img/about-2.jpg'], amenities:['Aire acondicionado','WiFi','TV','Minibar','Sala pequeña','Caja fuerte'] },
+    { id:'R003', name:'Super Deluxe', slug:'super-deluxe', price:230, description:'Habitación de lujo con jacuzzi privado, terraza y vista panorámica al mar Caribe.', capacityAdults:4, capacityChildren:2, beds:3, bathrooms:2, active:true, featured:true, image:'img/room-3.jpg', gallery:['img/room-3.jpg','img/about-3.jpg'], amenities:['Aire acondicionado','WiFi','TV','Jacuzzi','Terraza','Servicio al cuarto'] },
+    { id:'R004', name:'Family Ocean View', slug:'family-ocean-view', price:280, description:'Amplia suite familiar con vista directa al océano, perfecta para grupos y familias grandes.', capacityAdults:4, capacityChildren:3, beds:3, bathrooms:2, active:true, featured:false, image:'img/room-2.jpg', gallery:['img/room-2.jpg','img/about-4.jpg'], amenities:['Aire acondicionado','WiFi','TV','Vista al mar','Cocina equipada','2 habitaciones'] }
+];
+
+var defaultAdmins = [{ email:'admin@sunwave.com', password:'admin123', name:'Administrador' }];
+
+function getRooms() { return getData('rooms', defaultRooms); }
+function getReservations() { return getData('reservations', []); }
+function getAvailability() { return getData('availability', []); }
+function getAdmins() { return getData('admins', defaultAdmins); }
+
+function normalizeReservationStatus(status) {
+    var map = { pending:'pending', confirmed:'approved', cancelled:'rejected', approved:'approved', rejected:'rejected' };
+    return map[status] || 'pending';
+}
+
+function getReservationStatusMeta(status) {
+    var normalized = normalizeReservationStatus(status);
+    return {
+        pending: { label:'Pendiente', className:'badge-pending', icon:'En espera' },
+        approved: { label:'Aprobada', className:'badge-approved', icon:'Aprobada' },
+        rejected: { label:'Rechazada', className:'badge-rejected', icon:'Rechazada' }
+    }[normalized];
+}
+
+function formatReservationStatusBadge(status) {
+    var meta = getReservationStatusMeta(status);
+    return `<span class="badge-status ${meta.className}">${meta.label}</span>`;
+}
+
+function migrateReservations() {
+    var reservations = getReservations();
+    var changed = false;
+    reservations = reservations.map(function(res) {
+        var nextStatus = normalizeReservationStatus(res.status);
+        if (res.status !== nextStatus) changed = true;
+        if (typeof res.rejectionReason !== 'string') {
+            res.rejectionReason = '';
+            changed = true;
+        }
+        if (nextStatus !== 'rejected' && res.rejectionReason) {
+            res.rejectionReason = '';
+            changed = true;
+        }
+        res.status = nextStatus;
+        return res;
+    });
+    if (changed) setData('reservations', reservations);
+}
+
+// Session
+var currentSession = null;
+try { currentSession = JSON.parse(sessionStorage.getItem('sw_session')); } catch(e) {}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showPage(page) {
+    document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+    var el = document.getElementById('view-' + page);
+    if (el) el.classList.add('active');
+    document.body.classList.toggle('home-view', page === 'home');
+    window.scrollTo(0,0);
+    if (page === 'rooms') renderRoomsPage();
+    if (page === 'home') renderHomeRooms();
+    if (page === 'admin') { renderAdminDashboard(); adminTab('dashboard'); }
+}
+
+function scrollToSection(id) {
+    setTimeout(() => {
+        var el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior:'smooth' });
+    }, 100);
+}
+
+function searchRoomsFromHome() {
+    document.getElementById('rCheckIn').value = document.getElementById('homeCheckIn').value;
+    document.getElementById('rCheckOut').value = document.getElementById('homeCheckOut').value;
+    document.getElementById('rAdults').value = document.getElementById('homeAdults').value;
+    document.getElementById('rChildren').value = document.getElementById('homeChildren').value;
+    document.getElementById('rRooms').value = document.getElementById('homeRooms').value;
+    showPage('rooms');
+    filterRooms();
+}
+
+// ============================================================
+// RENDER HOME ROOMS GRID
+// ============================================================
+function renderHomeRooms() {
+    var rooms = getRooms().filter(r => r.active && r.featured).slice(0,3);
+    var grid = document.getElementById('homeRoomsGrid');
+    if (!grid) return;
+    grid.innerHTML = rooms.map(r => roomCard(r)).join('');
+}
+
+function roomCard(room) {
+    return `<div class="col-lg-4 col-md-6 wow fadeInUp">
+        <div class="room-item shadow rounded overflow-hidden">
+            <div class="position-relative">
+                <img class="img-fluid w-100" src="${room.image}" alt="${room.name}" style="height:220px;object-fit:cover;">
+                <small class="position-absolute start-0 top-100 translate-middle-y bg-primary text-white rounded py-1 px-3 ms-4">$${room.price}/Noche</small>
+            </div>
+            <div class="p-4 mt-2">
+                <div class="d-flex justify-content-between mb-3">
+                    <h5 class="mb-0">${room.name}</h5>
+                    <div>${'<small class="fa fa-star text-primary"></small>'.repeat(5)}</div>
+                </div>
+                <div class="d-flex mb-3">
+                    <small class="border-end me-3 pe-3"><i class="fa fa-bed text-primary me-2"></i>${room.beds} Camas</small>
+                    <small class="border-end me-3 pe-3"><i class="fa fa-bath text-primary me-2"></i>${room.bathrooms} Baños</small>
+                    <small><i class="fa fa-wifi text-primary me-2"></i>Wifi</small>
+                </div>
+                <p class="text-body mb-3">${room.description.length > 80 ? room.description.substring(0,80)+'...' : room.description}</p>
+                <div class="d-flex justify-content-between">
+                    <button class="btn btn-sm btn-primary rounded py-2 px-4" onclick="openRoomDetail('${room.id}')">Detalles</button>
+                    <button class="btn btn-sm btn-dark rounded py-2 px-4" onclick="openRoomDetail('${room.id}')">Reserva</button>
+                </div>
+            </div>
+        </div>
+    </div>`;
+}
+
+// ============================================================
+// ROOMS PAGE
+// ============================================================
+function renderRoomsPage(filteredRooms) {
+    var rooms = filteredRooms !== undefined ? filteredRooms : getRooms().filter(r => r.active);
+    var grid = document.getElementById('roomsGrid');
+    var noMsg = document.getElementById('noRoomsMsg');
+    if (!grid) return;
+    if (rooms.length === 0) {
+        grid.innerHTML = '';
+        noMsg.classList.remove('d-none');
+    } else {
+        noMsg.classList.add('d-none');
+        grid.innerHTML = rooms.map(r => roomCard(r)).join('');
+    }
+}
+
+function filterRooms() {
+    var checkIn = document.getElementById('rCheckIn').value;
+    var checkOut = document.getElementById('rCheckOut').value;
+    var adults = parseInt(document.getElementById('rAdults').value) || 0;
+    var children = parseInt(document.getElementById('rChildren').value) || 0;
+    var roomsQty = parseInt(document.getElementById('rRooms').value) || 1;
+    var errEl = document.getElementById('searchError');
+    var msgEl = document.getElementById('roomsResultMsg');
+
+    errEl.classList.add('d-none');
+
+    if (!checkIn || !checkOut) { renderRoomsPage(); msgEl.textContent = ''; return; }
+    if (new Date(checkOut) <= new Date(checkIn)) {
+        errEl.textContent = 'La fecha de salida debe ser mayor que la de entrada.';
+        errEl.classList.remove('d-none'); return;
+    }
+    if (adults < 1) {
+        errEl.textContent = 'Debes indicar al menos 1 adulto.';
+        errEl.classList.remove('d-none'); return;
+    }
+
+    var availability = getAvailability();
+    var reservations = getReservations();
+
+    var filtered = getRooms().filter(r => {
+        if (!r.active) return false;
+        // capacity
+        var minAdults = Math.ceil(adults / roomsQty);
+        var minChildren = Math.ceil(children / roomsQty);
+        if (r.capacityAdults < minAdults || r.capacityChildren < minChildren) return false;
+        // availability rules
+        var blocked = availability.some(av => {
+            if (av.roomId !== r.id) return false;
+            return datesOverlap(checkIn, checkOut, av.startDate, av.endDate) && av.type === 'block';
+        });
+        if (blocked) return false;
+        // reservations conflict
+        var busy = reservations.some(res => {
+            if (res.roomId !== r.id) return false;
+            if (!['pending','approved'].includes(normalizeReservationStatus(res.status))) return false;
+            return datesOverlap(checkIn, checkOut, res.checkIn, res.checkOut);
+        });
+        return !busy;
+    });
+
+    msgEl.innerHTML = `<strong>${filtered.length}</strong> habitación(es) encontradas para tu búsqueda.`;
+    renderRoomsPage(filtered);
+}
+
+function datesOverlap(s1, e1, s2, e2) {
+    return new Date(s1) < new Date(e2) && new Date(e1) > new Date(s2);
+}
+
+// ============================================================
+// ROOM DETAIL
+// ============================================================
+function openRoomDetail(roomId) {
+    var room = getRooms().find(r => r.id === roomId);
+    if (!room) return;
+
+    document.getElementById('resRoomId').value = room.id;
+    document.getElementById('detailMainImg').src = room.image;
+    document.getElementById('detailName').textContent = room.name;
+    document.getElementById('detailDesc').textContent = room.description;
+
+    document.getElementById('detailMeta').innerHTML =
+        `<span class="badge bg-primary py-2 px-3">$${room.price}/noche</span>
+         <span class="badge bg-secondary py-2 px-3">${room.capacityAdults} adultos</span>
+         <span class="badge bg-secondary py-2 px-3">${room.capacityChildren} niños</span>
+         <span class="badge bg-secondary py-2 px-3">${room.beds} camas</span>
+         <span class="badge bg-secondary py-2 px-3">${room.bathrooms} baños</span>`;
+
+    document.getElementById('detailAmenities').innerHTML =
+        (room.amenities || []).map(a => `<li>${a}</li>`).join('');
+
+    var gallery = document.getElementById('detailGallery');
+    gallery.innerHTML = (room.gallery || [room.image]).map(img =>
+        `<div class="col-6"><img src="${img}" class="detail-img-thumb" alt=""></div>`
+    ).join('');
+
+    // prefill search dates if available
+    var ci = document.getElementById('rCheckIn').value;
+    var co = document.getElementById('rCheckOut').value;
+    if (ci) document.getElementById('resCheckIn').value = ci;
+    if (co) document.getElementById('resCheckOut').value = co;
+    document.getElementById('resAdults').value = document.getElementById('rAdults').value || 2;
+    document.getElementById('resChildren').value = document.getElementById('rChildren').value || 0;
+    document.getElementById('resRooms').value = document.getElementById('rRooms').value || 1;
+
+    // store current room price
+    document.getElementById('resRoomId').dataset.price = room.price;
+    document.getElementById('resError').classList.add('d-none');
+    calcEstimate();
+    showPage('detail');
+}
+
+// ============================================================
+// ESTIMATE CALCULATOR
+// ============================================================
+function calcEstimate() {
+    var ci = document.getElementById('resCheckIn').value;
+    var co = document.getElementById('resCheckOut').value;
+    var rms = parseInt(document.getElementById('resRooms').value) || 1;
+    var price = parseFloat(document.getElementById('resRoomId').dataset.price) || 0;
+    var totalEl = document.getElementById('estimateTotal');
+    var nightsEl = document.getElementById('estimateNights');
+
+    if (!ci || !co) { totalEl.textContent = 'Completa fechas para calcular'; nightsEl.textContent = '--'; return; }
+    var nights = Math.ceil((new Date(co) - new Date(ci)) / 86400000);
+    if (nights <= 0) { totalEl.textContent = 'Fechas inválidas'; nightsEl.textContent = '--'; return; }
+
+    var subtotal = price * rms * nights;
+    var total = subtotal * 1.18;
+    totalEl.textContent = '$' + total.toFixed(2);
+    nightsEl.textContent = nights;
+}
+
+// ============================================================
+// RESERVATION
+// ============================================================
+function confirmReservation() {
+    var roomId = document.getElementById('resRoomId').value;
+    var name = document.getElementById('resName').value.trim();
+    var email = document.getElementById('resEmail').value.trim();
+    var phone = document.getElementById('resPhone').value.trim();
+    var checkIn = document.getElementById('resCheckIn').value;
+    var checkOut = document.getElementById('resCheckOut').value;
+    var adults = parseInt(document.getElementById('resAdults').value);
+    var children = parseInt(document.getElementById('resChildren').value);
+    var roomsQty = parseInt(document.getElementById('resRooms').value);
+    var notes = document.getElementById('resNotes').value.trim();
+    var errEl = document.getElementById('resError');
+
+    errEl.classList.add('d-none');
+    var errors = [];
+    if (!name || !email || !phone) errors.push('Completa nombre, correo y teléfono.');
+    if (!checkIn || !checkOut) errors.push('Completa las fechas de entrada y salida.');
+    if (checkIn && checkOut && new Date(checkOut) <= new Date(checkIn)) errors.push('La fecha de salida debe ser mayor a la de entrada.');
+
+    if (errors.length) { errEl.innerHTML = errors.join('<br>'); errEl.classList.remove('d-none'); return; }
+
+    var room = getRooms().find(r => r.id === roomId);
+    var nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / 86400000);
+    var subtotal = room.price * roomsQty * nights;
+    var taxes = subtotal * 0.18;
+    var total = subtotal + taxes;
+
+    var code = 'SW-' + Math.random().toString(36).substring(2,8).toUpperCase();
+    var reservation = {
+        id: 'RES-' + Date.now(),
+        code, roomId, roomName: room.name,
+        guestName: name, email, phone,
+        checkIn, checkOut, adults, children,
+        roomQuantity: roomsQty, notes,
+        nights, subtotal: subtotal.toFixed(2),
+        taxes: taxes.toFixed(2),
+        estimatedTotal: total.toFixed(2),
+        status: 'pending',
+        rejectionReason: '',
+        createdAt: new Date().toISOString()
+    };
+
+    var reservations = getReservations();
+    reservations.push(reservation);
+    setData('reservations', reservations);
+
+    showConfirmation(reservation);
+}
+
+function showConfirmation(res) {
+    document.getElementById('confCode').textContent = res.code;
+    document.getElementById('confSummary').innerHTML = `
+        <div class="summary-item"><strong>Cliente</strong><span>${res.guestName}</span></div>
+        <div class="summary-item"><strong>Correo</strong><span>${res.email}</span></div>
+        <div class="summary-item"><strong>Teléfono</strong><span>${res.phone}</span></div>
+        <div class="summary-item"><strong>Habitación</strong><span>${res.roomName}</span></div>
+        <div class="summary-item"><strong>Entrada</strong><span>${res.checkIn}</span></div>
+        <div class="summary-item"><strong>Salida</strong><span>${res.checkOut}</span></div>
+        <div class="summary-item"><strong>Noches</strong><span>${res.nights}</span></div>
+        <div class="summary-item"><strong>Habitaciones</strong><span>${res.roomQuantity}</span></div>
+        <div class="summary-item"><strong>Adultos</strong><span>${res.adults}</span></div>
+        <div class="summary-item"><strong>Niños</strong><span>${res.children}</span></div>
+        <div class="summary-item"><strong>Subtotal</strong><span>$${res.subtotal}</span></div>
+        <div class="summary-item"><strong>Impuestos (ITBIS 18%)</strong><span>$${res.taxes}</span></div>
+        <div class="summary-item" style="grid-column:1/-1; background:#fffbf0; border-color:#FEA116;">
+            <strong>Total estimado</strong><span style="font-size:1.2rem;color:#FEA116;">$${res.estimatedTotal}</span>
+        </div>
+        <div class="summary-item"><strong>Estado</strong><span>${formatReservationStatusBadge(res.status)}</span></div>
+    `;
+    showPage('confirmation');
+}
+
+function lookupReservation() {
+    var codeInput = document.getElementById('lookupCode');
+    var errEl = document.getElementById('lookupError');
+    var resultEl = document.getElementById('lookupResult');
+    var code = codeInput.value.trim().toUpperCase();
+
+    errEl.classList.add('d-none');
+    resultEl.classList.add('d-none');
+    resultEl.innerHTML = '';
+
+    if (!code) {
+        errEl.textContent = 'Ingresa un código de reserva para realizar la consulta.';
+        errEl.classList.remove('d-none');
+        return;
+    }
+
+    var reservation = getReservations().find(function(res) {
+        return String(res.code || '').toUpperCase() === code;
+    });
+
+    if (!reservation) {
+        errEl.textContent = 'No encontramos una reserva con ese código. Verifica el dato e inténtalo nuevamente.';
+        errEl.classList.remove('d-none');
+        return;
+    }
+
+    reservation.status = normalizeReservationStatus(reservation.status);
+    var rejectionBlock = reservation.status === 'rejected'
+        ? `<div class="summary-item" style="grid-column:1/-1; background:#fff2f2; border-color:#f2c7c7;">
+                <strong>Motivo del rechazo</strong>
+                <span>${reservation.rejectionReason ? reservation.rejectionReason : 'El administrador rechazó la reserva sin registrar un motivo.'}</span>
+           </div>`
+        : '';
+
+    resultEl.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <div>
+                <small class="text-muted d-block">Código de reserva</small>
+                <strong class="text-primary fs-5">${reservation.code}</strong>
+            </div>
+            <div>
+                <small class="text-muted d-block">Estado actual</small>
+                ${formatReservationStatusBadge(reservation.status)}
+            </div>
+        </div>
+        <div class="summary-grid">
+            <div class="summary-item"><strong>Cliente</strong><span>${reservation.guestName}</span></div>
+            <div class="summary-item"><strong>Habitación</strong><span>${reservation.roomName}</span></div>
+            <div class="summary-item"><strong>Entrada</strong><span>${reservation.checkIn}</span></div>
+            <div class="summary-item"><strong>Salida</strong><span>${reservation.checkOut}</span></div>
+            <div class="summary-item"><strong>Noches</strong><span>${reservation.nights}</span></div>
+            <div class="summary-item"><strong>Total estimado</strong><span>$${reservation.estimatedTotal}</span></div>
+            ${rejectionBlock}
+        </div>
+    `;
+    resultEl.classList.remove('d-none');
+}
+
+function printConfirmation() { window.print(); }
+
+// ============================================================
+// LOGIN / AUTH
+// ============================================================
+function doLogin() {
+    var email = document.getElementById('loginEmail').value.trim();
+    var pass = document.getElementById('loginPass').value;
+    var errEl = document.getElementById('loginError');
+    var admins = getAdmins();
+    var admin = admins.find(a => a.email === email && a.password === pass);
+
+    if (!admin) {
+        errEl.classList.remove('d-none'); return;
+    }
+    errEl.classList.add('d-none');
+    currentSession = { name: admin.name, email: admin.email, role: 'admin' };
+    sessionStorage.setItem('sw_session', JSON.stringify(currentSession));
+
+    // Show welcome banner
+    document.getElementById('welcomeBanner').style.display = 'block';
+    document.getElementById('welcomeName').textContent = admin.name;
+    document.getElementById('adminAccessBtn').style.display = 'inline-block';
+    document.getElementById('navLoginLink').textContent = 'Dashboard';
+
+    showPage('admin');
+}
+
+function enterAdmin() { showPage('admin'); }
+
+function logout() {
+    currentSession = null;
+    sessionStorage.removeItem('sw_session');
+    document.getElementById('welcomeBanner').style.display = 'none';
+    document.getElementById('navLoginLink').textContent = 'Admin';
+    document.getElementById('navLoginLink').setAttribute('onclick', "showPage('login')");
+    showPage('home');
+}
+
+// ============================================================
+// ADMIN TABS
+// ============================================================
+function adminTab(tab) {
+    var tabs = ['dashboard','rooms','reservations','availability'];
+    tabs.forEach(t => {
+        document.getElementById('tab-' + t).classList.add('d-none');
+        document.getElementById('sidebar' + t.charAt(0).toUpperCase() + t.slice(1)).classList.remove('active');
+    });
+    document.getElementById('tab-' + tab).classList.remove('d-none');
+    document.getElementById('sidebar' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+
+    var titles = { dashboard:'Panel administrativo', rooms:'Gestionar habitaciones', reservations:'Gestionar reservas', availability:'Administrar disponibilidad' };
+    document.getElementById('adminPageTitle').textContent = titles[tab];
+
+    if (tab === 'dashboard') renderAdminDashboard();
+    if (tab === 'rooms') renderAdminRooms();
+    if (tab === 'reservations') renderAdminReservations();
+    if (tab === 'availability') renderAdminAvailability();
+    return false;
+}
+
+// ============================================================
+// ADMIN DASHBOARD
+// ============================================================
+function renderAdminDashboard() {
+    var rooms = getRooms();
+    var reservations = getReservations();
+    var availability = getAvailability();
+    var stats = [
+        { label:'Total habitaciones', val: rooms.length },
+        { label:'Activas', val: rooms.filter(r=>r.active).length },
+        { label:'Reservas pendientes', val: reservations.filter(r=>normalizeReservationStatus(r.status)==='pending').length },
+        { label:'Reservas aprobadas', val: reservations.filter(r=>normalizeReservationStatus(r.status)==='approved').length },
+        { label:'Reservas rechazadas', val: reservations.filter(r=>normalizeReservationStatus(r.status)==='rejected').length },
+        { label:'Bloqueos por fecha', val: availability.filter(a=>a.type==='block').length }
+    ];
+    document.getElementById('statsGrid').innerHTML = stats.map(s =>
+        `<div class="col"><div class="stat-box"><h2>${s.val}</h2><small>${s.label}</small></div></div>`
+    ).join('');
+}
+
+// ============================================================
+// ADMIN ROOMS
+// ============================================================
+function renderAdminRooms() {
+    var rooms = getRooms();
+    document.getElementById('adminRoomsTable').innerHTML = rooms.length === 0
+        ? '<tr><td colspan="5" class="text-center text-muted py-4">No hay habitaciones.</td></tr>'
+        : rooms.map(r => `<tr>
+            <td>
+                <div class="d-flex align-items-center gap-2">
+                    <img src="${r.image}" style="width:55px;height:40px;object-fit:cover;border-radius:6px;" alt="">
+                    <div><strong>${r.name}</strong><div class="text-muted small">${r.id}</div></div>
+                </div>
+            </td>
+            <td class="align-middle"><span class="badge bg-primary py-1 px-2">$${r.price}/noche</span></td>
+            <td class="align-middle"><small>${r.capacityAdults} adultos / ${r.capacityChildren} niños</small></td>
+            <td class="align-middle"><span class="badge-status ${r.active ? 'badge-active' : 'badge-inactive'}">${r.active ? 'Activa' : 'Inactiva'}</span></td>
+            <td class="align-middle">
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary" onclick="openRoomForm('${r.id}')">Editar</button>
+                    <button class="btn btn-sm ${r.active ? 'btn-outline-danger' : 'btn-outline-success'}" onclick="toggleRoom('${r.id}')">${r.active ? 'Desactivar' : 'Activar'}</button>
+                </div>
+            </td>
+        </tr>`).join('');
+}
+
+function openRoomForm(roomId) {
+    var room = roomId ? getRooms().find(r => r.id === roomId) : null;
+    document.getElementById('roomFormTitle').textContent = room ? 'Editar Habitación' : 'Nueva Habitación';
+    document.getElementById('rfId').value = room ? room.id : '';
+    document.getElementById('rfName').value = room ? room.name : '';
+    document.getElementById('rfPrice').value = room ? room.price : '';
+    document.getElementById('rfDesc').value = room ? room.description : '';
+    document.getElementById('rfAdults').value = room ? room.capacityAdults : 2;
+    document.getElementById('rfChildren').value = room ? room.capacityChildren : 1;
+    document.getElementById('rfBeds').value = room ? room.beds : 1;
+    document.getElementById('rfBaths').value = room ? room.bathrooms : 1;
+    document.getElementById('rfImage').value = room ? room.image : '';
+    document.getElementById('rfAmenities').value = room ? (room.amenities || []).join(', ') : '';
+    document.getElementById('rfFeatured').checked = room ? !!room.featured : false;
+    document.getElementById('rfActive').checked = room ? !!room.active : true;
+    new bootstrap.Modal(document.getElementById('roomFormModal')).show();
+}
+
+function saveRoom() {
+    var id = document.getElementById('rfId').value;
+    var rooms = getRooms();
+    var room = {
+        id: id || 'R' + String(Date.now()).slice(-6),
+        name: document.getElementById('rfName').value.trim(),
+        slug: document.getElementById('rfName').value.trim().toLowerCase().replace(/\s+/g,'-'),
+        price: Number(document.getElementById('rfPrice').value),
+        description: document.getElementById('rfDesc').value.trim(),
+        capacityAdults: Number(document.getElementById('rfAdults').value),
+        capacityChildren: Number(document.getElementById('rfChildren').value),
+        beds: Number(document.getElementById('rfBeds').value),
+        bathrooms: Number(document.getElementById('rfBaths').value),
+        image: document.getElementById('rfImage').value.trim() || 'img/room-1.jpg',
+        gallery: [document.getElementById('rfImage').value.trim() || 'img/room-1.jpg'],
+        amenities: document.getElementById('rfAmenities').value.split(',').map(s=>s.trim()).filter(Boolean),
+        featured: document.getElementById('rfFeatured').checked,
+        active: document.getElementById('rfActive').checked
+    };
+    if (id) {
+        var idx = rooms.findIndex(r => r.id === id);
+        if (idx >= 0) rooms[idx] = room;
+    } else {
+        rooms.push(room);
+    }
+    setData('rooms', rooms);
+    bootstrap.Modal.getInstance(document.getElementById('roomFormModal')).hide();
+    renderAdminRooms();
+    renderAdminDashboard();
+}
+
+function toggleRoom(roomId) {
+    var rooms = getRooms();
+    var idx = rooms.findIndex(r => r.id === roomId);
+    if (idx < 0) return;
+    var nextActive = !rooms[idx].active;
+    if (nextActive && hasConfirmedReservationForRoom(roomId)) {
+        alert('No se puede activar esta habitación porque tiene una reserva confirmada.');
+        return;
+    }
+    rooms[idx].active = nextActive;
+    setData('rooms', rooms);
+    renderAdminRooms();
+    renderAdminDashboard();
+}
+
+function hasConfirmedReservationForRoom(roomId) {
+    return getReservations().some(r => r.roomId === roomId && normalizeReservationStatus(r.status) === 'approved');
+}
+
+function syncRoomStatusWithReservations(roomId) {
+    var rooms = getRooms();
+    var idx = rooms.findIndex(r => r.id === roomId);
+    if (idx < 0) return;
+    rooms[idx].active = !hasConfirmedReservationForRoom(roomId);
+    setData('rooms', rooms);
+}
+
+// ============================================================
+// ADMIN RESERVATIONS
+// ============================================================
+function renderAdminReservations() {
+    var reservations = getReservations().map(function(r) { r.status = normalizeReservationStatus(r.status); if (typeof r.rejectionReason !== 'string') r.rejectionReason = ''; return r; }).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    var tbody = document.getElementById('adminReservationsTable');
+    if (!reservations.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No hay reservas.</td></tr>'; return;
+    }
+    tbody.innerHTML = reservations.map(r => {
+        var actions = '';
+        if (r.status !== 'approved') actions += `<button class="btn btn-sm btn-success mb-1" onclick="updateResStatus('${r.id}','approved')">Aprobar</button>`;
+        if (r.status !== 'rejected') actions += `<button class="btn btn-sm btn-outline-danger" onclick="updateResStatus('${r.id}','rejected', prompt('Motivo del rechazo:'))">Rechazar</button>`;
+
+
+        return `<tr>
+            <td class="align-middle"><strong class="text-primary">${r.code}</strong></td>
+            <td class="align-middle"><strong>${r.guestName}</strong><div class="text-muted small">${r.email}</div></td>
+            <td class="align-middle">${r.roomName}<div class="text-muted small">${r.adults} ad. / ${r.children} ni.</div></td>
+            <td class="align-middle"><small>${r.checkIn} → ${r.checkOut}</small><div class="text-muted small">${r.nights} noche(s)</div></td>
+            <td class="align-middle"><span class="badge bg-primary py-1">$${r.estimatedTotal}</span></td>
+            <td class="align-middle">${formatReservationStatusBadge(r.status)}</td>
+            <td class="align-middle text-muted small">${r.status === 'rejected' ? (r.rejectionReason || 'Sin motivo registrado') : '-'}</td>
+            <td class="align-middle"><div class="d-flex flex-column gap-1">${actions}</div></td>
+        </tr>`;
+    }).join('');
+}
+function updateResStatus(id, status, rejectionReason) {
+    var res = getReservations();
+    var idx = res.findIndex(r => r.id === id);
+    if (idx < 0) return;
+    if (status === 'rejected' && (!rejectionReason || !String(rejectionReason).trim())) { alert('Debes registrar un motivo de rechazo.'); return; }
+    res[idx].status = normalizeReservationStatus(status);
+    res[idx].rejectionReason = res[idx].status === 'rejected' ? String(rejectionReason).trim() : '';
+    setData('reservations', res);
+    syncRoomStatusWithReservations(res[idx].roomId);
+    renderAdminReservations();
+    renderAdminRooms();
+    renderAdminDashboard();
+}
+
+// ============================================================
+// ADMIN AVAILABILITY
+// ============================================================
+function renderAdminAvailability() {
+    var rooms = getRooms();
+    var sel = document.getElementById('avRoomId');
+    sel.innerHTML = '<option value="">Selecciona</option>' +
+        rooms.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+
+    var rules = getAvailability().sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    var tbody = document.getElementById('adminAvailabilityTable');
+    if (!rules.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">No hay reglas.</td></tr>'; return;
+    }
+    tbody.innerHTML = rules.map(av => {
+        var room = rooms.find(r => r.id === av.roomId);
+        return `<tr>
+            <td class="align-middle">${room ? room.name : av.roomId}</td>
+            <td class="align-middle"><small>${av.startDate} → ${av.endDate}</small></td>
+            <td class="align-middle"><span class="badge-status ${av.type==='block'?'badge-block':'badge-open'}">${av.type==='block'?'Bloqueado':'Abierto'}</span></td>
+            <td class="align-middle text-muted small">${av.reason || '—'}</td>
+            <td class="align-middle"><button class="btn btn-sm btn-outline-danger" onclick="deleteAvailability('${av.id}')"><i class="fa fa-trash"></i></button></td>
+        </tr>`;
+    }).join('');
+}
+
+function addAvailability() {
+    var roomId = document.getElementById('avRoomId').value;
+    var type = document.getElementById('avType').value;
+    var start = document.getElementById('avStart').value;
+    var end = document.getElementById('avEnd').value;
+    var reason = document.getElementById('avReason').value.trim();
+    if (!roomId || !start || !end) { alert('Completa todos los campos requeridos.'); return; }
+    if (new Date(end) <= new Date(start)) { alert('La fecha final debe ser mayor a la inicial.'); return; }
+    var rules = getAvailability();
+    rules.push({ id:'A'+Date.now(), roomId, type, startDate:start, endDate:end, reason, createdAt:new Date().toISOString() });
+    setData('availability', rules);
+    document.getElementById('avRoomId').value = '';
+    document.getElementById('avStart').value = '';
+    document.getElementById('avEnd').value = '';
+    document.getElementById('avReason').value = '';
+    renderAdminAvailability();
+    renderAdminDashboard();
+}
+
+function deleteAvailability(id) {
+    if (!confirm('¿Eliminar este rango?')) return;
+    setData('availability', getAvailability().filter(a => a.id !== id));
+    renderAdminAvailability();
+    renderAdminDashboard();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('footerYear').textContent = new Date().getFullYear();
+    migrateReservations();
+
+    // Restore session
+    if (currentSession) {
+        document.getElementById('welcomeBanner').style.display = 'block';
+        document.getElementById('welcomeName').textContent = currentSession.name;
+        document.getElementById('adminAccessBtn').style.display = 'inline-block';
+        document.getElementById('navLoginLink').textContent = 'Dashboard';
+        document.getElementById('navLoginLink').setAttribute('onclick', "showPage('admin')");
+    }
+
+    renderHomeRooms();
+
+    // Video modal
+    document.querySelector('.btn-play') && document.querySelector('.btn-play').addEventListener('click', function() {
+        var src = this.getAttribute('data-src');
+        document.getElementById('videoModal').addEventListener('shown.bs.modal', function handler() {
+            document.getElementById('video').src = src + '?autoplay=1&modestbranding=1';
+            this.removeEventListener('shown.bs.modal', handler);
+        });
+    });
+    document.getElementById('videoModal').addEventListener('hide.bs.modal', function() {
+        document.getElementById('video').src = '';
+    });
+});
+</script>
+
+</body>
+</html>
+
